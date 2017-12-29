@@ -1,0 +1,13 @@
+# ignore all data files except one needed for R script
+*.csv
+!Results.csv
+
+# ignore figures
+Figs
+
+# ignore microsoft office files
+*.xlsx
+*.docx
+
+# ignore R files
+.Rhistory
