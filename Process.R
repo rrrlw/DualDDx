@@ -1,4 +1,5 @@
 # get required packages
+.libPaths("C:/Users/wadhwar/Documents/R/win-library/3.4")
 library(ggplot2)
 library(tidyr)
 library(dplyr)
@@ -51,7 +52,9 @@ ggplot(data = df.props, aes(x = Condition, y = Mean, color = I("black"))) +
   geom_bar(stat = "identity", fill = "red") +
   theme_bw() +
   geom_errorbar(aes(ymin = Mean - SD, ymax = Mean + SD),
-                width = 0.35)
+                width = 0.35) +
+  ylab("Proportion detected") +
+  xlab("DDx Tool")
 ggsave("Figs/BarplotSingle.png", width = 6, height = 6)
 
 # check how good a tool is at detecting both in a pair
@@ -76,14 +79,18 @@ ggplot(data = df.props, aes(x = Condition, y = Mean, color = I("black"))) +
   geom_bar(stat = "identity", fill = "red") +
   theme_bw() +
   geom_errorbar(aes(ymin = Mean - SD, ymax = Mean + SD),
-                width = 0.35)
+                width = 0.35) +
+  ylab("Proportion detected") +
+  xlab("DDx Tool")
 ggsave("Figs/BarplotPairSD.png", width = 6, height = 6)
 
 ggplot(data = df.props, aes(x = Condition, y = Mean, color = I("black"))) +
   geom_bar(stat = "identity", fill = "red") +
   theme_bw() +
   geom_errorbar(aes(ymin = Mean - SE, ymax = Mean + SE),
-                width = 0.35)
+                width = 0.35) +
+  ylab("Proportion detected") +
+  xlab("DDx Tool")
 ggsave("Figs/BarplotPairSE.png", width = 6, height = 6)
 
 #####VARYING THRESHOLD#####
