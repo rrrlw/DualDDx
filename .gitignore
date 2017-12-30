@@ -11,3 +11,15 @@ Figs
 
 # ignore R files
 .Rhistory
+
+# ignore LaTeX files
+*.aux
+*.log
+*.pdf
+*.tex
+
+# ignore Makefile
+Makefile
+
+# ignore Report files
+Report.*
