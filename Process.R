@@ -17,9 +17,12 @@ cust.round <- function(num, numdig = 4) {
 # read in data
 dataset <- read.csv("Results.csv",
                     header = TRUE,
-                    na.strings = c("NA",""),
+                    na.strings = c("NA", "", "Inf", "NR"),
                     colClasses = c(rep("character", 3),
                                    rep("integer", 6)))
+
+# processing: change all NA values to 1000 (after all thresholds)
+dataset[is.na(dataset)] <- 1000
 
 # if folder doesn't exist, make it
 if (!file.exists("Figs")) {
@@ -28,70 +31,70 @@ if (!file.exists("Figs")) {
 
 #####SINGLE THRESHOLD#####
 # combine ranks for both diagnoses into one
-fz <- c(dataset$FZC1, dataset$FZC2)
-sci<- c(dataset$SCC1I, dataset$SCC2I)
-scn<- c(dataset$SCC1W, dataset$SCC2W)
+# fz <- c(dataset$FZC1, dataset$FZC2)
+# sci<- c(dataset$SCC1I, dataset$SCC2I)
+# scn<- c(dataset$SCC1W, dataset$SCC2W)
 
 # convert ranks to boolean for proportion testing
 # see how good each tool is overall
-fz <- fz <= 20
-sci<- sci<= 20
-scn<- scn<= 20
+# fz <- fz <= 20
+# sci<- sci<= 20
+# scn<- scn<= 20
 
 # store means and sd into data frame for bar chart
-df.props <- data.frame(Condition = c("FZ", "SCI", "SCN"),
-                       Mean = c(mean(fz),
-                                mean(sci),
-                                mean(scn)),
-                       SD = c(sd(fz),
-                              sd(sci),
-                              sd(scn)))
+# df.props <- data.frame(Condition = c("FZ", "SCI", "SCN"),
+#                        Mean = c(mean(fz),
+#                                 mean(sci),
+#                                 mean(scn)),
+#                        SD = c(sd(fz),
+#                               sd(sci),
+#                               sd(scn)))
 
 # plot as bar
-ggplot(data = df.props, aes(x = Condition, y = Mean, color = I("black"))) +
-  geom_bar(stat = "identity", fill = "red") +
-  theme_bw() +
-  geom_errorbar(aes(ymin = Mean - SD, ymax = Mean + SD),
-                width = 0.35) +
-  ylab("Proportion detected") +
-  xlab("DDx Tool")
-ggsave("Figs/BarplotSingle.png", width = 6, height = 6)
+# ggplot(data = df.props, aes(x = Condition, y = Mean, color = I("black"))) +
+#   geom_bar(stat = "identity", fill = "red") +
+#   theme_bw() +
+#   geom_errorbar(aes(ymin = Mean - SD, ymax = Mean + SD),
+#                 width = 0.35) +
+#   ylab("Proportion detected") +
+#   xlab("DDx Tool")
+# ggsave("Figs/BarplotSingle.png", width = 6, height = 6)
 
 # check how good a tool is at detecting both in a pair
-fz <- (dataset$FZC1 <= 20 & dataset$FZC2 <= 20)
-sci<- (dataset$SCC1I<= 20 & dataset$SCC2I<= 20)
-scn<- (dataset$SCC1W<= 20 & dataset$SCC2W<= 20)
+# fz <- (dataset$FZC1 <= 20 & dataset$FZC2 <= 20)
+# sci<- (dataset$SCC1I<= 20 & dataset$SCC2I<= 20)
+# scn<- (dataset$SCC1W<= 20 & dataset$SCC2W<= 20)
 
 # store means and sd into data frame for bar chart
-df.props <- data.frame(Condition = c("FZ", "SCI", "SCN"),
-                       Mean = c(mean(fz),
-                                mean(sci),
-                                mean(scn)),
-                       SD = c(sd(fz),
-                              sd(sci),
-                              sd(scn)),
-                       SE = c(se(fz),
-                              se(sci),
-                              se(scn)))
+# df.props <- data.frame(Condition = c("FZ", "SCI", "SCN"),
+#                        Mean = c(mean(fz),
+#                                 mean(sci),
+#                                 mean(scn)),
+#                        SD = c(sd(fz),
+#                               sd(sci),
+#                               sd(scn)),
+#                        SE = c(se(fz),
+#                               se(sci),
+#                               se(scn)))
 
 # plot as bar
-ggplot(data = df.props, aes(x = Condition, y = Mean, color = I("black"))) +
-  geom_bar(stat = "identity", fill = "red") +
-  theme_bw() +
-  geom_errorbar(aes(ymin = Mean - SD, ymax = Mean + SD),
-                width = 0.35) +
-  ylab("Proportion detected") +
-  xlab("DDx Tool")
-ggsave("Figs/BarplotPairSD.png", width = 6, height = 6)
-
-ggplot(data = df.props, aes(x = Condition, y = Mean, color = I("black"))) +
-  geom_bar(stat = "identity", fill = "red") +
-  theme_bw() +
-  geom_errorbar(aes(ymin = Mean - SE, ymax = Mean + SE),
-                width = 0.35) +
-  ylab("Proportion detected") +
-  xlab("DDx Tool")
-ggsave("Figs/BarplotPairSE.png", width = 6, height = 6)
+# ggplot(data = df.props, aes(x = Condition, y = Mean, color = I("black"))) +
+#   geom_bar(stat = "identity", fill = "red") +
+#   theme_bw() +
+#   geom_errorbar(aes(ymin = Mean - SD, ymax = Mean + SD),
+#                 width = 0.35) +
+#   ylab("Proportion detected") +
+#   xlab("DDx Tool")
+# ggsave("Figs/BarplotPairSD.png", width = 6, height = 6)
+# 
+# ggplot(data = df.props, aes(x = Condition, y = Mean, color = I("black"))) +
+#   geom_bar(stat = "identity", fill = "red") +
+#   theme_bw() +
+#   geom_errorbar(aes(ymin = Mean - SE, ymax = Mean + SE),
+#                 width = 0.35) +
+#   ylab("Proportion detected") +
+#   xlab("DDx Tool")
+# ggsave("Figs/BarplotPairSE.png", width = 6, height = 6)
 
 #####VARYING THRESHOLD#####
 # see how good each tool is at detecting both in a pair based on varying
@@ -125,25 +128,43 @@ df.thresh <- df.thresh %>%
   gather("Tool", "Prop.Detect", 2:4)
 
 # plot as line plot
+# ggplot(df.thresh, aes(x = Threshold, y = Prop.Detect, colour = Tool)) +
+#   geom_line() +
+#   ylab(label = "Proportion of dual diagnoses detected") +
+#   xlab("Disease Detection Rank Threshold") +
+#   theme_bw() +
+#   theme(legend.position = c(0.8, 0.2)) +
+#   scale_colour_manual(values = c("red", "blue", "black"),
+#                       label = c("FindZebra",
+#                                 "SC (Incidence)",
+#                                 "SC (No incidence)"))
+# ggsave("Figs/VaryThreshold.png", width = 6, height = 6)
+
+# # plot as line plot with smoother
+df.thresh <- df.thresh %>%
+  dplyr::mutate(SE = sqrt(Prop.Detect * (1 - Prop.Detect) / nrow(dataset)))
+df.thresh[df.thresh$Tool != "SCI",]$SE <- 0
 ggplot(df.thresh, aes(x = Threshold, y = Prop.Detect, colour = Tool)) +
   geom_line() +
-  ylab(label = "Proportion of dual diagnoses detected") +
+  geom_ribbon(aes(ymin = df.ribbon$Prop.Detect - df.ribbon$SE,
+                  ymax = df.ribbon$Prop.Detect + df.ribbon$SE),
+              linetype = 0, alpha = 0.1) +
+  ylab("Proportion of dual diagnoses detected") +
   xlab("Disease Detection Rank Threshold") +
   theme_bw() +
   theme(legend.position = c(0.8, 0.2)) +
   scale_colour_manual(values = c("red", "blue", "black"),
                       label = c("FindZebra",
-                                "SC (Incidence)",
-                                "SC (No incidence)"))
-ggsave("Figs/VaryThreshold.png", width = 6, height = 6)
-
+                                "SCI",
+                                "SCN"))
+ggsave("Figs/StatVaryThresh.png", width = 6, height = 6)
 
 #####EFFECT OF SINGLE DDX#####
 # list of conditions
-single.ddx <- data.frame(conds = c("TSD", "SLO", "MMA", "GSD", "PKU", "FXS", "AT", "CF", "TOI", "MD", "NS", "SS", "HS", "SDS", "TSC"),
-                         fz = c(1, 6, 5, 3, 1, 5, 8, 6, 1, 1, 3, 2, 10, 9, 4),
-                         sci= c(2, 1, 5, 3, 1, 3, 5, 1, 4, 1, 1, 8, 1, 1, 1),
-                         scn= c(1, 6, 5, 1, 2, 2, 35, 1, 17, 1, 5, 26, 1, 1, 1))
+single.ddx <- data.frame(conds = c("TSD", "SLO", "MMA", "GSD", "PKU", "FXS", "AT", "CF", "TOI", "MD", "NS", "SS", "HS", "SDS", "TSC", "FXS2", "HS2", "AT2"),
+                         fz = c(1, 6, 5, 3, 1, 5, 8, 6, 1, 1, 3, 2, 10, 9, 4, 5, 6, 3),
+                         sci= c(2, 1, 5, 3, 1, 3, 5, 1, 4, 1, 1, 8, 1, 1, 1, 6, 4, 2),
+                         scn= c(1, 6, 5, 1, 2, 2, 35, 1, 17, 1, 5, 26, 1, 1, 1, 10, 5, 2))
 
 # function to detect what proportion of the time this disease was detected by given tool
 prop.detected <- function(condition, tool, rank.thresh) {
@@ -266,3 +287,4 @@ ggplot(df.bias, aes(x = Condition, y = Proportion, fill = Tool)) +
   theme(legend.position = "top") +
   geom_vline(xintercept = seq(1.5, by = 1, length = length(single.ddx$conds) - 1))
 ggsave("Figs/CondBias.png", width = 6, height = 3)
+
