@@ -146,8 +146,8 @@ df.thresh <- df.thresh %>%
 df.thresh[df.thresh$Tool != "SCI",]$SE <- 0
 ggplot(df.thresh, aes(x = Threshold, y = Prop.Detect, colour = Tool)) +
   geom_line() +
-  geom_ribbon(aes(ymin = df.ribbon$Prop.Detect - df.ribbon$SE,
-                  ymax = df.ribbon$Prop.Detect + df.ribbon$SE),
+  geom_ribbon(aes(ymin = df.thresh$Prop.Detect - df.thresh$SE,
+                  ymax = df.thresh$Prop.Detect + df.thresh$SE),
               linetype = 0, alpha = 0.1) +
   ylab("Proportion of dual diagnoses detected") +
   xlab("Disease Detection Rank Threshold") +
