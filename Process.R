@@ -1,8 +1,9 @@
 # get required packages
 .libPaths("C:/Users/wadhwar/Documents/R/win-library/3.4")
-library(ggplot2)
-library(tidyr)
-library(dplyr)
+suppressPackageStartupMessages(library(ggplot2))
+suppressPackageStartupMessages(library(tidyr))
+suppressPackageStartupMessages(library(dplyr))
+cat("Packages loaded.\n")
 
 # function to calculate se
 se <- function(vec) {
@@ -13,6 +14,7 @@ se <- function(vec) {
 cust.round <- function(num, numdig = 4) {
   as.character(round(num, digits = numdig))
 }
+cat("Personal functions defined.\n")
 
 # read in data
 dataset <- read.csv("Results.csv",
@@ -20,6 +22,7 @@ dataset <- read.csv("Results.csv",
                     na.strings = c("NA", "", "Inf", "NR"),
                     colClasses = c(rep("character", 3),
                                    rep("integer", 6)))
+cat("Data input completed.\n")
 
 # processing: change all NA values to 1000 (after all thresholds)
 dataset[is.na(dataset)] <- 1000
@@ -27,6 +30,7 @@ dataset[is.na(dataset)] <- 1000
 # if folder doesn't exist, make it
 if (!file.exists("Figs")) {
   dir.create("Figs")
+  cat("Folder for plots created.\n")
 }
 
 #####SINGLE THRESHOLD#####
@@ -158,6 +162,7 @@ ggplot(df.thresh, aes(x = Threshold, y = Prop.Detect, colour = Tool)) +
                                 "SCI",
                                 "SCN"))
 ggsave("Figs/StatVaryThresh.png", width = 6, height = 6)
+cat("Plot for varying rank threshold created.\n")
 
 #####EFFECT OF SINGLE DDX#####
 # list of conditions
@@ -273,6 +278,7 @@ common +
                          cust.round(summary(scn.model)$coefficients[2, 4])),
            parse = TRUE)
 ggsave("Figs/SingleDual-SCN.png", width = 6, height = 6)
+cat("Plots for tool bias created.\n")
 
 # reshape for dodge bar plot
 df.bias <- df.prop.det %>%
@@ -287,4 +293,6 @@ ggplot(df.bias, aes(x = Condition, y = Proportion, fill = Tool)) +
   theme(legend.position = "top") +
   geom_vline(xintercept = seq(1.5, by = 1, length = length(single.ddx$conds) - 1))
 ggsave("Figs/CondBias.png", width = 6, height = 3)
+cat("Plot for conditional bias created.\n")
 
+cat("Script completed.")
