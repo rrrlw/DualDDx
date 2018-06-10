@@ -146,13 +146,17 @@ df.thresh <- df.thresh %>%
 
 # # plot as line plot with smoother
 df.thresh <- df.thresh %>%
-  dplyr::mutate(SE = sqrt(Prop.Detect * (1 - Prop.Detect) / nrow(dataset)))
+  dplyr::mutate(SE = sqrt(Prop.Detect * (1 - Prop.Detect) / nrow(dataset)),
+                ymin = Prop.Detect - SE,
+                ymax = Prop.Detect + SE)
 df.thresh[df.thresh$Tool != "SCI",]$SE <- 0
-ggplot(df.thresh, aes(x = Threshold, y = Prop.Detect, colour = Tool)) +
+df.thresh[df.thresh$Tool != "SCI",]$ymin <- 0
+df.thresh[df.thresh$Tool != "SCI",]$ymax <- 0
+ggplot(df.thresh, aes(x = Threshold, y = Prop.Detect, linetype = Tool)) +
+  geom_ribbon(aes(ymin = ymin,
+                  ymax = ymax),
+                  fill = "grey90") +
   geom_line() +
-  geom_ribbon(aes(ymin = df.thresh$Prop.Detect - df.thresh$SE,
-                  ymax = df.thresh$Prop.Detect + df.thresh$SE),
-              linetype = 0, alpha = 0.1) +
   ylab("Proportion of dual diagnoses detected") +
   xlab("Disease Detection Rank Threshold") +
   theme_bw() +
@@ -161,7 +165,7 @@ ggplot(df.thresh, aes(x = Threshold, y = Prop.Detect, colour = Tool)) +
                       label = c("FindZebra",
                                 "SCI",
                                 "SCN"))
-ggsave("Figs/StatVaryThresh.png", width = 6, height = 6)
+ggsave("Figs/StatVaryThresh.png", width = 4, height = 4)
 cat("Plot for varying rank threshold created.\n")
 
 #####EFFECT OF SINGLE DDX#####
@@ -226,57 +230,57 @@ common <- ggplot(df.prop.det) +
 fz.model <- lm(FZ ~ FZ.Single, data = df.prop.det)
 common +
   geom_point(aes(x = FZ.Single, y = FZ)) +
-  xlab("FindZebra Single Dx Rank") +
-  annotate("text", x = 7.5, y = 0.3,
-           label = paste("italic(R) ^ 2 ==",
-                         cust.round(cor(df.prop.det$FZ.Single, df.prop.det$FZ) ^ 2, 4)),
-           parse = TRUE) +
-  annotate("text", x = 7.5, y = 0.27,
-           label = paste("italic(m) ==",
-                         cust.round(fz.model$coefficients[2])),
-           parse = TRUE) +
-  annotate("text", x = 7.5, y = 0.24,
-           label = paste("italic(p) ==",
-                         cust.round(summary(fz.model)$coefficients[2, 4])),
-           parse = TRUE)
+  xlab("FindZebra Single Dx Rank") #+
+  # annotate("text", x = 7.5, y = 0.3,
+  #          label = paste("italic(R) ^ 2 ==",
+  #                        cust.round(cor(df.prop.det$FZ.Single, df.prop.det$FZ) ^ 2, 4)),
+  #          parse = TRUE) +
+  # annotate("text", x = 7.5, y = 0.27,
+  #          label = paste("italic(m) ==",
+  #                        cust.round(fz.model$coefficients[2])),
+  #          parse = TRUE) +
+  # annotate("text", x = 7.5, y = 0.24,
+  #          label = paste("italic(p) ==",
+  #                        cust.round(summary(fz.model)$coefficients[2, 4])),
+  #          parse = TRUE)
 ggsave("Figs/SingleDual-FZ.png", width = 6, height = 6)
 
 # SC (Incidence)
 sci.model <- lm(SCI ~ SCI.Single, data = df.prop.det)
 common +
   geom_point(aes(x = SCI.Single, y = SCI)) +
-  xlab("SC (Incidence) Single Dx Rank") +
-  annotate("text", x = 6, y = 0.3,
-           label = paste("italic(R) ^ 2 ==",
-                         cust.round(cor(df.prop.det$SCI.Single, df.prop.det$SCI) ^ 2, 4)),
-           parse = TRUE) +
-  annotate("text", x = 6, y = 0.27,
-           label = paste("italic(m) ==",
-                         cust.round(sci.model$coefficients[2])),
-           parse = TRUE) +
-  annotate("text", x = 6, y = 0.24,
-           label = paste("italic(p) ==",
-                         cust.round(summary(sci.model)$coefficients[2, 4])),
-           parse = TRUE)
+  xlab("SCI Single Dx Rank") #+
+  # annotate("text", x = 6, y = 0.3,
+  #          label = paste("italic(R) ^ 2 ==",
+  #                        cust.round(cor(df.prop.det$SCI.Single, df.prop.det$SCI) ^ 2, 4)),
+  #          parse = TRUE) +
+  # annotate("text", x = 6, y = 0.27,
+  #          label = paste("italic(m) ==",
+  #                        cust.round(sci.model$coefficients[2])),
+  #          parse = TRUE) +
+  # annotate("text", x = 6, y = 0.24,
+  #          label = paste("italic(p) ==",
+  #                        cust.round(summary(sci.model)$coefficients[2, 4])),
+  #          parse = TRUE)
 ggsave("Figs/SingleDual-SCI.png", width = 6, height = 6)
 
 # SC (No incidence)
 scn.model <- lm(SCN ~ SCN.Single, data = df.prop.det)
 common +
   geom_point(aes(x = SCN.Single, y = SCN)) +
-  xlab("SC (No incidence) Single Dx Rank") +
-  annotate("text", x = 25, y = 0.3,
-           label = paste("italic(R) ^ 2 ==",
-                         cust.round(cor(df.prop.det$SCN.Single, df.prop.det$SCN) ^ 2, 4)),
-           parse = TRUE) +
-  annotate("text", x = 25, y = 0.27,
-           label = paste("italic(m) ==",
-                         cust.round(scn.model$coefficients[2])),
-           parse = TRUE) +
-  annotate("text", x = 25, y = 0.24,
-           label = paste("italic(p) ==",
-                         cust.round(summary(scn.model)$coefficients[2, 4])),
-           parse = TRUE)
+  xlab("SCN Single Dx Rank") #+
+  # annotate("text", x = 25, y = 0.3,
+  #          label = paste("italic(R) ^ 2 ==",
+  #                        cust.round(cor(df.prop.det$SCN.Single, df.prop.det$SCN) ^ 2, 4)),
+  #          parse = TRUE) +
+  # annotate("text", x = 25, y = 0.27,
+  #          label = paste("italic(m) ==",
+  #                        cust.round(scn.model$coefficients[2])),
+  #          parse = TRUE) +
+  # annotate("text", x = 25, y = 0.24,
+  #          label = paste("italic(p) ==",
+  #                        cust.round(summary(scn.model)$coefficients[2, 4])),
+  #          parse = TRUE)
 ggsave("Figs/SingleDual-SCN.png", width = 6, height = 6)
 cat("Plots for tool bias created.\n")
 
@@ -286,12 +290,16 @@ df.bias <- df.prop.det %>%
   gather("Tool", "Proportion", 2:4)
 
 ggplot(df.bias, aes(x = Condition, y = Proportion, fill = Tool)) +
-  geom_bar(stat = "identity", position = "dodge") +
-  scale_fill_manual(values = c("red", "blue", "gray"),
-                    label = c("FindZebra", "SC (Incidence)", "SC (No incidence)")) +
+  geom_bar(stat = "identity", position = "dodge",
+           color = "black", size = 0.25) +
+  scale_fill_manual(values = c("white", "black", "gray"),
+                    label = c("FindZebra", "SCI", "SCN")) +
   theme_bw() +
-  theme(legend.position = "top") +
-  geom_vline(xintercept = seq(1.5, by = 1, length = length(single.ddx$conds) - 1))
+  theme(legend.position = "top", panel.grid = element_blank()) +
+  geom_vline(xintercept = seq(1.5, by = 1,
+                              length = length(single.ddx$conds) - 1),
+             size = 0.25) +
+  ylab("Proportion Detected")
 ggsave("Figs/CondBias.png", width = 6, height = 3)
 cat("Plot for conditional bias created.\n")
 
