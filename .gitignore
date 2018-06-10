@@ -5,6 +5,7 @@
 # ignore figures
 Figs
 OldFigs
+OlderFigs
 
 # ignore microsoft office files
 *.xlsx
