@@ -32,73 +32,6 @@ if (!file.exists("Figs")) {
   cat("Folder for plots created.\n")
 }
 
-#####SINGLE THRESHOLD#####
-# combine ranks for both diagnoses into one
-# fz <- c(dataset$FZC1, dataset$FZC2)
-# sci<- c(dataset$SCC1I, dataset$SCC2I)
-# scn<- c(dataset$SCC1W, dataset$SCC2W)
-
-# convert ranks to boolean for proportion testing
-# see how good each tool is overall
-# fz <- fz <= 20
-# sci<- sci<= 20
-# scn<- scn<= 20
-
-# store means and sd into data frame for bar chart
-# df.props <- data.frame(Condition = c("FZ", "SCI", "SCN"),
-#                        Mean = c(mean(fz),
-#                                 mean(sci),
-#                                 mean(scn)),
-#                        SD = c(sd(fz),
-#                               sd(sci),
-#                               sd(scn)))
-
-# plot as bar
-# ggplot(data = df.props, aes(x = Condition, y = Mean, color = I("black"))) +
-#   geom_bar(stat = "identity", fill = "red") +
-#   theme_bw() +
-#   geom_errorbar(aes(ymin = Mean - SD, ymax = Mean + SD),
-#                 width = 0.35) +
-#   ylab("Proportion detected") +
-#   xlab("DDx Tool")
-# ggsave("Figs/BarplotSingle.png", width = 6, height = 6)
-
-# check how good a tool is at detecting both in a pair
-# fz <- (dataset$FZC1 <= 20 & dataset$FZC2 <= 20)
-# sci<- (dataset$SCC1I<= 20 & dataset$SCC2I<= 20)
-# scn<- (dataset$SCC1W<= 20 & dataset$SCC2W<= 20)
-
-# store means and sd into data frame for bar chart
-# df.props <- data.frame(Condition = c("FZ", "SCI", "SCN"),
-#                        Mean = c(mean(fz),
-#                                 mean(sci),
-#                                 mean(scn)),
-#                        SD = c(sd(fz),
-#                               sd(sci),
-#                               sd(scn)),
-#                        SE = c(se(fz),
-#                               se(sci),
-#                               se(scn)))
-
-# plot as bar
-# ggplot(data = df.props, aes(x = Condition, y = Mean, color = I("black"))) +
-#   geom_bar(stat = "identity", fill = "red") +
-#   theme_bw() +
-#   geom_errorbar(aes(ymin = Mean - SD, ymax = Mean + SD),
-#                 width = 0.35) +
-#   ylab("Proportion detected") +
-#   xlab("DDx Tool")
-# ggsave("Figs/BarplotPairSD.png", width = 6, height = 6)
-# 
-# ggplot(data = df.props, aes(x = Condition, y = Mean, color = I("black"))) +
-#   geom_bar(stat = "identity", fill = "red") +
-#   theme_bw() +
-#   geom_errorbar(aes(ymin = Mean - SE, ymax = Mean + SE),
-#                 width = 0.35) +
-#   ylab("Proportion detected") +
-#   xlab("DDx Tool")
-# ggsave("Figs/BarplotPairSE.png", width = 6, height = 6)
-
 #####VARYING THRESHOLD#####
 # see how good each tool is at detecting both in a pair based on varying
 # threshold of what counts as detection (less than what rank)
@@ -130,20 +63,7 @@ df.thresh <- data.frame(Threshold = vals,
 df.thresh <- df.thresh %>%
   gather("Tool", "Prop.Detect", 2:4)
 
-# plot as line plot
-# ggplot(df.thresh, aes(x = Threshold, y = Prop.Detect, colour = Tool)) +
-#   geom_line() +
-#   ylab(label = "Proportion of dual diagnoses detected") +
-#   xlab("Disease Detection Rank Threshold") +
-#   theme_bw() +
-#   theme(legend.position = c(0.8, 0.2)) +
-#   scale_colour_manual(values = c("red", "blue", "black"),
-#                       label = c("FindZebra",
-#                                 "SC (Incidence)",
-#                                 "SC (No incidence)"))
-# ggsave("Figs/VaryThreshold.png", width = 6, height = 6)
-
-# # plot as line plot with smoother
+# plot as line plot with smoother
 df.thresh <- df.thresh %>%
   dplyr::mutate(SE = sqrt(Prop.Detect * (1 - Prop.Detect) / nrow(dataset)),
                 ymin = Prop.Detect - SE,
@@ -163,7 +83,9 @@ ggplot(df.thresh, aes(x = Threshold, y = Prop.Detect, linetype = Tool)) +
   scale_colour_manual(values = c("red", "blue", "black"),
                       label = c("FindZebra",
                                 "SCI",
-                                "SCN"))
+                                "SCN")) +
+  scale_x_continuous(limits = c(1, 20), expand = c(0, 0)) +
+  scale_y_continuous(limits = c(0, 0.425), expand = c(0, 0))
 ggsave("Figs/StatVaryThresh.png", width = 4, height = 4)
 cat("Plot for varying rank threshold created.\n")
 
@@ -229,57 +151,21 @@ common <- ggplot(df.prop.det) +
 fz.model <- lm(FZ ~ FZ.Single, data = df.prop.det)
 common +
   geom_point(aes(x = FZ.Single, y = FZ)) +
-  xlab("FindZebra Single Dx Rank") #+
-  # annotate("text", x = 7.5, y = 0.3,
-  #          label = paste("italic(R) ^ 2 ==",
-  #                        cust.round(cor(df.prop.det$FZ.Single, df.prop.det$FZ) ^ 2, 4)),
-  #          parse = TRUE) +
-  # annotate("text", x = 7.5, y = 0.27,
-  #          label = paste("italic(m) ==",
-  #                        cust.round(fz.model$coefficients[2])),
-  #          parse = TRUE) +
-  # annotate("text", x = 7.5, y = 0.24,
-  #          label = paste("italic(p) ==",
-  #                        cust.round(summary(fz.model)$coefficients[2, 4])),
-  #          parse = TRUE)
+  xlab("FindZebra Single Dx Rank")
 ggsave("Figs/SingleDual-FZ.png", width = 6, height = 6)
 
 # SC (Incidence)
 sci.model <- lm(SCI ~ SCI.Single, data = df.prop.det)
 common +
   geom_point(aes(x = SCI.Single, y = SCI)) +
-  xlab("SCI Single Dx Rank") #+
-  # annotate("text", x = 6, y = 0.3,
-  #          label = paste("italic(R) ^ 2 ==",
-  #                        cust.round(cor(df.prop.det$SCI.Single, df.prop.det$SCI) ^ 2, 4)),
-  #          parse = TRUE) +
-  # annotate("text", x = 6, y = 0.27,
-  #          label = paste("italic(m) ==",
-  #                        cust.round(sci.model$coefficients[2])),
-  #          parse = TRUE) +
-  # annotate("text", x = 6, y = 0.24,
-  #          label = paste("italic(p) ==",
-  #                        cust.round(summary(sci.model)$coefficients[2, 4])),
-  #          parse = TRUE)
+  xlab("SCI Single Dx Rank")
 ggsave("Figs/SingleDual-SCI.png", width = 6, height = 6)
 
 # SC (No incidence)
 scn.model <- lm(SCN ~ SCN.Single, data = df.prop.det)
 common +
   geom_point(aes(x = SCN.Single, y = SCN)) +
-  xlab("SCN Single Dx Rank") #+
-  # annotate("text", x = 25, y = 0.3,
-  #          label = paste("italic(R) ^ 2 ==",
-  #                        cust.round(cor(df.prop.det$SCN.Single, df.prop.det$SCN) ^ 2, 4)),
-  #          parse = TRUE) +
-  # annotate("text", x = 25, y = 0.27,
-  #          label = paste("italic(m) ==",
-  #                        cust.round(scn.model$coefficients[2])),
-  #          parse = TRUE) +
-  # annotate("text", x = 25, y = 0.24,
-  #          label = paste("italic(p) ==",
-  #                        cust.round(summary(scn.model)$coefficients[2, 4])),
-  #          parse = TRUE)
+  xlab("SCN Single Dx Rank")
 ggsave("Figs/SingleDual-SCN.png", width = 6, height = 6)
 cat("Plots for tool bias created.\n")
 
@@ -298,7 +184,8 @@ ggplot(df.bias, aes(x = Condition, y = Proportion, fill = Tool)) +
   geom_vline(xintercept = seq(1.5, by = 1,
                               length = length(single.ddx$conds) - 1),
              size = 0.25) +
-  ylab("Proportion Detected")
+  ylab("Proportion Detected") +
+  scale_y_continuous(limits = c(0, 1.025), expand = c(0, 0))
 ggsave("Figs/CondBias.png", width = 6, height = 3)
 cat("Plot for conditional bias created.\n")
 
