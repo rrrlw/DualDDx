@@ -1,5 +1,4 @@
 # get required packages
-.libPaths("C:/Users/wadhwar/Documents/R/win-library/3.4")
 suppressPackageStartupMessages(library(ggplot2))
 suppressPackageStartupMessages(library(tidyr))
 suppressPackageStartupMessages(library(dplyr))
@@ -303,4 +302,4 @@ ggplot(df.bias, aes(x = Condition, y = Proportion, fill = Tool)) +
 ggsave("Figs/CondBias.png", width = 6, height = 3)
 cat("Plot for conditional bias created.\n")
 
-cat("Script completed.")
+cat("Script completed.\n")
